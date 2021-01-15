@@ -1,4 +1,6 @@
 Cargo.lock
 codewars/target/
+mutab/target
+bintree/target
 codewars/.vscode/
 .vscode/
