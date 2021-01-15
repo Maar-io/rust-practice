@@ -3,6 +3,7 @@ fn solution(phrase: &str) -> String {
 }
 
 pub fn run(){
+  println!("run invert string");
   let inv = solution("Heloo");
   println!("Hi {}", inv);
 }
