@@ -1,97 +1,110 @@
-// move_semantics2.rs
-// Make me compile without changing line 13!
-// Execute `rustlings hint move_semantics2` for hints :)
+// This does practically the same thing that TryFrom<&str> does.
+// Additionally, upon implementing FromStr, you can use the `parse` method
+// on strings to generate an object of the implementor type.
+// You can read more about it at https://doc.rust-lang.org/std/str/trait.FromStr.html
+use std::str::FromStr;
 
+#[derive(Debug)]
+struct Person {
+  name: String,
+  age: usize,
+}
 
-// TASK:
+// I AM NOT DONE
+// Steps:
+// 1. If the length of the provided string is 0, then return an error
+// 2. Split the given string on the commas present in it
+// 3. Extract the first element from the split operation and use it as the name
+// 4. If the name is empty, then return an error
+// 5. Extract the other element from the split operation and parse it into a `usize` as the age
+//    with something like `"4".parse::<usize>()`.
+// If while parsing the age, something goes wrong, then return an error
+// Otherwise, then return a Result of a Person object
+impl FromStr for Person {
+  type Err = String;
+  fn from_str(s: &str) -> Result<Person, Self::Err> {
+    if s.len() == 0 {
+      return Err("empty input string".to_string());
+    }
+    let v: Vec<&str> = s.split(",").collect();
+    if v.len() != 2 {
+      return Err("bad input".to_string());
+    }
+
+    let name = v[0];
+    if name.len() == 0 {
+      return Err("bad name".to_string());
+    }
+
+    if let Some(age) = v.get(1) {
+      match age.parse() {
+        Ok(age) => Ok(Person {
+          name: name.to_string(),
+          age,
+        }),
+        Err(_) => Err("bad age".to_string()),
+      }
+    } else {
+      return Err("bad bad".to_string());
+    }
+
+  }
+}
+
 fn main() {
-    let vec0 = Vec::new();
-    let mut vec1 = fill_vec(vec0);
-
-    // Do not change the following line!
-    println!("{} has length {} content `{:?}`", "vec0", vec0.len(), vec0);
-
-    vec1.push(88);
-
-    println!("{} has length {} content `{:?}`", "vec1", vec1.len(), vec1);
+  let p = "Mark,20".parse::<Person>().unwrap();
+  println!("{:?}", p);
 }
 
-fn fill_vec(vec: Vec<i32>) -> Vec<i32> {
-    let mut vec = vec;
+#[cfg(test)]
+mod tests {
+  use super::*;
 
-    vec.push(22);
-    vec.push(44);
-    vec.push(66);
+  #[test]
+  fn empty_input() {
+    assert!("".parse::<Person>().is_err());
+  }
+  #[test]
+  fn good_input() {
+    let p = "John,32".parse::<Person>();
+    assert!(p.is_ok());
+    let p = p.unwrap();
+    assert_eq!(p.name, "John");
+    assert_eq!(p.age, 32);
+  }
+  #[test]
+  #[should_panic]
+  fn missing_age() {
+    "John,".parse::<Person>().unwrap();
+  }
 
-    vec
-}
+  #[test]
+  #[should_panic]
+  fn invalid_age() {
+    "John,twenty".parse::<Person>().unwrap();
+  }
 
-// 1. Make another, separate version of the data that's in `vec0` and pass that
-//    to `fill_vec` instead.
-fn main() {
-    let vec0 = Vec::new();
-    let vec2 = vec0.clone();
-    let mut vec1 = fill_vec(vec2);
+  #[test]
+  #[should_panic]
+  fn missing_comma_and_age() {
+    "John".parse::<Person>().unwrap();
+  }
 
-    // Do not change the following line!
-    println!("{} has length {} content `{:?}`", "vec0", vec0.len(), vec0);
+  #[test]
+  #[should_panic]
+  fn missing_name() {
+    ",1".parse::<Person>().unwrap();
+  }
 
-    vec1.push(88);
+  #[test]
+  #[should_panic]
+  fn missing_name_and_age() {
+    ",".parse::<Person>().unwrap();
+  }
 
-    println!("{} has length {} content `{:?}`", "vec1", vec1.len(), vec1);
-}
-
-fn fill_vec(vec: Vec<i32>) -> Vec<i32> {
-    let mut vec = vec;
-
-    vec.push(22);
-    vec.push(44);
-    vec.push(66);
-
-    vec
-}
-
-// 2. Make `fill_vec` borrow its argument instead of taking ownership of it,
-//    and then copy the data within the function in order to return an owned
-//    `Vec<i32>`
-fn main() {
-    let vec0 = Vec::new();
-    let mut vec1 = fill_vec(&vec0);
-
-    // Do not change the following line!
-    println!("{} has length {} content `{:?}`", "vec0", vec0.len(), vec0);
-
-    vec1.push(88);
-
-    println!("{} has length {} content `{:?}`", "vec1", vec1.len(), vec1);
-}
-
-fn fill_vec(vec: &Vec<i32>) -> Vec<i32> {
-    let mut vec = vec.clone();
-
-    vec.push(22);
-    vec.push(44);
-    vec.push(66);
-
-    vec
-}
-
-
-//   3. Make `fill_vec` *mutably* borrow its argument (which will need to be
-//   mutable), modify it directly, then not return anything. Then you can get rid
-//   of `vec1` entirely -- note that this will change what gets printed by the
-//   first `println!`
-fn main() {
-  let mut vec0 = Vec::new();
-  fill_vec(&mut vec0);
-
-  // Do not change the following line!
-  println!("{} has length {} content `{:?}`", "vec0", vec0.len(), vec0);
-
-}
-
-fn fill_vec(vec: &mut Vec<i32>) {
-  vec.push(22);
-  vec.push(44);
-  vec.push(66);
+  #[test]
+  #[should_panic]
+  fn missing_name_and_invalid_age() {
+    ",one".parse::<Person>().unwrap();
+  }
 }
