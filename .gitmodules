@@ -1,0 +1,3 @@
+[submodule "blockchain-rust"]
+	path = blockchain-rust
+	url = git@github.com:GeekLaunch/blockchain-rust.git
