@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 rand = "0.8.1"
+convert_case = "0.4.0"
+Inflector = {version="*", default-features=false}
